@@ -1,7 +1,8 @@
 import yahooquery as yq
-import pprint
 import humanize
 import requests
+from libs.crawler.dividends_crawler import DividendsCrawler
+from libs.scraper.key_ratios_scraper import KeyRatioScraper
 from lxml import html
 import re
 
@@ -47,6 +48,9 @@ class YahooCrawler():
             self.set_stock_distribution(symbol, ticker, dict_of_reits)
             self.set_ffo(symbol, ticker, dict_of_reits)
 
+        key_ratio_scraper = KeyRatioScraper(dict_of_reits)
+        key_ratio_scraper.set_key_ratios()
+
     def set_price_changes(self, symbol, ticker, dict_of_reits):
         current_price = dict_of_reits[symbol]['price']
         dict_of_reits[symbol]['day_change'] = self.get_daily_changes(
@@ -75,15 +79,8 @@ class YahooCrawler():
         return round(((price - day_1) / day_1) * 100, 2)
 
     def set_dividend_yield_ttm(self, symbol, dict_of_reits):
-        response = requests.get('https://www.dividends.sg/view/' + symbol[:-3])
-        tree = html.fromstring(response.text)
-        ttm_yield = tree.xpath("/html/body/div/div[2]/div/div/div[1]/text()[6]")[0]
-        ttm_yield = re.search(r"\d{1,5}\.\d{0,2}", ttm_yield)
-
-        if ttm_yield:
-            dict_of_reits[symbol]['dividend_yield'] = ttm_yield.group(0)
-        else:
-            dict_of_reits[symbol]['dividend_yield'] = "0.00"
+        dividends_crawler = DividendsCrawler(symbol)
+        dict_of_reits[symbol]['dividend_yield'] = dividends_crawler.get_dividend_yield_ttm()
 
     def set_stock_distribution(self, symbol, ticker, dict_of_reits):
         if not ticker.fund_ownership.empty:
