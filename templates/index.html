@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>REIT Tracker</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- load jQuery and tablesorter scripts -->
+    <link rel="stylesheet" href="https://mottie.github.io/tablesorter/css/theme.bootstrap_4.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="https://mottie.github.io/tablesorter/js/jquery.tablesorter.js"></script>
+    <script type="text/javascript" src="https://mottie.github.io/tablesorter/js/jquery.tablesorter.widgets.js"></script>
+
+    <script>
+        $(function() {
+            $("#reitTable").tablesorter({
+                "theme": "bootstrap"
+            });
+        })
+    </script>
+
+    <style>
+        th.red {
+            color: red;
+        }
+        th.green {
+            color: seagreen;
+        }
+        th.green-cell {
+            background-color: seagreen;
+            color: white;
+        }
+        th.orange-cell {
+            background-color: darkorange;
+            color: white;
+        }
+        th.red-cell {
+            background-color: red;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <table id = "reitTable" class="table table-striped table-bordered table-sm table-sorter" cellspacing="0" width="100%">
+        <thead class="thead-dark">
+            <th>Name</th>
+            <th>Industry</th>
+            <th>Market Cap (Millions)</th>
+            <th>Price</th>
+            <th>Day Change (%)</th>
+            <th>Week Change (%)</th>
+            <th>Month Change (%)</th>
+            <th>YTD Change (%)</th>
+            <th>Dividend Yield (TTM) (%)</th>
+            <th>Price to NAV (Ratio)</th>
+            <th>FFO (TTM) (%)</th>
+            <th>Last FY FFO (%)</th>
+            <th>Gearing Ratio (%)</th>
+            <th>Interest Ratio</th>
+            <th>WALE GRI (years)</th>
+            <th>WALE NLA (years)</th>
+            <th>Insider Held Percentage (%)</th>
+            <th>Institutional Held Percentage (%)</th>
+            <!-- <th>Institutional Holders</th> -->
+        </thead>
+        <tbody>
+            {% for ticker in result %}
+                {% if '_id' not in ticker and 'timestamp' not in ticker %}
+                    <tr>
+                        <th>{% print(result[ticker].name + " (" + ticker[:-3] + ")") %}</th>
+                        <th>{{ result[ticker].industry }}</th>
+                        <th>{{ result[ticker].market_cap }}</th>
+                        <th>{{ result[ticker].price }}</th>
+                        
+                        {% if result[ticker].day_change < 0 %}
+                            <th class='red'> {{result[ticker].day_change}} </th> 
+                        {% elif result[ticker].day_change > 0  %}
+                            <th class='green'> {{result[ticker].day_change}} </th> 
+                        {% else %}
+                             <th> {{result[ticker].day_change}} </th> 
+                        {% endif %}
+
+                        {% if result[ticker].week_change < 0 %}
+                            <th class='red'> {{result[ticker].week_change}} </th> 
+                        {% elif result[ticker].week_change > 0  %}
+                            <th class='green'> {{result[ticker].week_change}} </th> 
+                        {% else %}
+                            <th> {{result[ticker].week_change}} </th> 
+                        {% endif %}
+
+                        {% if result[ticker].month_change < 0 %}
+                            <th class='red'> {{result[ticker].month_change}} </th> 
+                        {% elif result[ticker].month_change > 0  %}
+                            <th class='green'> {{result[ticker].month_change}} </th> 
+                        {% else %}
+                            <th> {{result[ticker].month_change}} </th> 
+                        {% endif %}
+
+                        {% if result[ticker].ytd_change < 0 %}
+                            <th class='red'> {{result[ticker].ytd_change}} </th> 
+                        {% elif result[ticker].ytd_change > 0  %}
+                            <th class='green'> {{result[ticker].ytd_change}} </th> 
+                        {% else %}
+                            <th> {{result[ticker].ytd_change}} </th> 
+                        {% endif %}
+
+                        <th>{{ result[ticker].dividend_yield }}</th>
+                        
+                        {% if result[ticker].pnav < 1 %}
+                            <th class='green-cell'> {{result[ticker].pnav}} </th> 
+                        {% elif result[ticker].pnav <= 1.2 %}
+                            <th class='orange-cell'> {{result[ticker].pnav}} </th> 
+                        {% else %}
+                             <th class='red-cell'> {{result[ticker].pnav}} </th> 
+                        {% endif %}
+
+                        {% if result[ticker].ttm_ffo  %}
+                            {% if result[ticker].ttm_ffo > 90 %}
+                                <th class='green-cell'> {{result[ticker].ttm_ffo}} </th> 
+                            {% elif result[ticker].ttm_ffo > 80 %}
+                                <th class='orange-cell'> {{result[ticker].ttm_ffo}} </th> 
+                            {% else %}
+                                <th class='red-cell'> {{result[ticker].ttm_ffo}} </th> 
+                            {% endif %}
+                        {% else %}
+                            <th></th>
+                        {% endif %}
+
+                        {% if result[ticker].last_fy_ffo  %}
+                            {% if result[ticker].last_fy_ffo > 90 %}
+                                <th class='green-cell'> {{result[ticker].last_fy_ffo}} </th> 
+                            {% elif result[ticker].last_fy_ffo > 80 %}
+                                <th class='orange-cell'> {{result[ticker].last_fy_ffo}} </th> 
+                            {% else %}
+                                <th class='red-cell'> {{result[ticker].last_fy_ffo}} </th> 
+                            {% endif %}
+                        {% else %}
+                            <th></th>
+                        {% endif %}
+
+                        {% if result[ticker].gearing_ratio > 40 %}
+                            <th class='red-cell'> {{result[ticker].gearing_ratio}} </th> 
+                        {% elif result[ticker].gearing_ratio < 25 %}
+                            <th class='orange-cell'> {{result[ticker].gearing_ratio}} </th> 
+                        {% else %}
+                            <th class='green-cell'> {{result[ticker].gearing_ratio}} </th> 
+                        {% endif %}
+
+                        <th>{{ result[ticker].interest_ratio}} </th>
+                        
+                        {% if result[ticker].wale_gri  %}
+                            {% if result[ticker].wale_gri > 5 %}
+                                <th class='green-cell'> {{result[ticker].wale_gri}} </th> 
+                            {% elif result[ticker].wale_gri < 3 %}
+                                <th class='red-cell'> {{result[ticker].wale_gri}} </th> 
+                            {% else %}
+                                <th class='orange-cell'> {{result[ticker].wale_gri}} </th> 
+                            {% endif %}
+                        {% else %}
+                            <th></th>
+                        {% endif %}
+
+                        <th>{{ result[ticker].wale_nla }}</th>
+                        <th>{{ result[ticker].insiders_held_percentage }}</th>
+                        <th>{{ result[ticker].institutional_held_percentage }}</th>
+                        <!-- <th>
+                        {% for holder in  result[ticker].institutional_holders %}
+                                {%print('%s: %f' % (holder.organization, holder.pctHeld))%}
+                                <br>
+                        {% endfor %}
+                        </th> -->
+                    </tr>
+                {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>
